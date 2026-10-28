@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+JAVA_BUILD="$PROJECT_DIR/java/build"
+
+case "${1:-help}" in
+  help)
+    echo "DevCheck CLI - Custom Commands"
+    echo "Usage:"
+    echo "  devcheck help"
+    echo "  devcheck greet NAME"
+    echo "  devcheck calc add NUMBER NUMBER"
+    echo "  devcheck scan [PATH]"
+    echo "  devcheck cloc [PATH]"
+    ;;
+
+  greet|calc|reverse|palindrome|stats)
+    if [ ! -d "$JAVA_BUILD" ]; then
+      echo "Error: Java build folder not found: $JAVA_BUILD"
+      exit 1
+    fi
+    java -cp "$JAVA_BUILD" devcheck.Main "$@"
+    ;;
+
+  scan)
+    TARGET="${2:-.}"
+    echo "DevCheck filesystem scan: $TARGET"
+    if [ -f "$PROJECT_DIR/python/scanner.py" ]; then
+      python "$PROJECT_DIR/python/scanner.py" "$TARGET"
+    elif [ -f "$PROJECT_DIR/scanner.py" ]; then
+      python "$PROJECT_DIR/scanner.py" "$TARGET"
+    else
+      echo "Scanner file not found. Check your Python scanner path."
+      exit 1
+    fi
+    ;;
+
+  cloc)
+    TARGET="${2:-.}"
+    if command -v cloc >/dev/null 2>&1; then
+      cloc "$TARGET"
+    else
+      echo "CLOC is not installed or is not on PATH."
+      echo "Install it or connect this command to your existing CLOC implementation."
+      exit 1
+    fi
+    ;;
+
+  *)
+    echo "Unknown command: $1"
+    echo "Run 'devcheck help' for available commands."
+    exit 1
+    ;;
+esac

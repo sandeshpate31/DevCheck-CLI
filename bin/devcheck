@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -e
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ $# -eq 0 || "$1" == "--help" || "$1" == "-h" ]]; then
+  echo "DevCheck CLI - Python + Java developer toolbox"
+  echo "Usage: ./bin/devcheck <py|java|gui> <command> [arguments]"
+  echo "Examples: ./bin/devcheck py calc add 2 3"
+  echo "          ./bin/devcheck java calc multiply 6 7"
+  echo "          ./bin/devcheck gui"
+  echo "          ./bin/devcheck java calc multiply 6 7"
+  echo "Run './bin/devcheck py --help' or './bin/devcheck java help'."
+  exit 0
+fi
+GROUP="$1"; shift
+case "$GROUP" in
+  gui)
+    command -v javac >/dev/null 2>&1 || { echo "Error: JDK not found. Install a JDK and verify javac -version." >&2; exit 2; }
+    BUILD="$ROOT/java/build"; mkdir -p "$BUILD"
+    find "$ROOT/java/src" -name '*.java' -print0 | xargs -0 javac -d "$BUILD"
+    java -cp "$BUILD" devcheck.DevCheckGui
+    ;;
+  py)
+    if [[ -d "$ROOT/python" ]]; then PYTHONPATH="$ROOT/python${PYTHONPATH:+:$PYTHONPATH}" python -m devcheck_cli.cli "$@"; else echo "Error: python package missing" >&2; exit 2; fi
+    ;;
+  java)
+    command -v javac >/dev/null 2>&1 || { echo "Error: JDK not found. Install a JDK and verify javac -version." >&2; exit 2; }
+    BUILD="$ROOT/java/build"; mkdir -p "$BUILD"
+    find "$ROOT/java/src" -name '*.java' -print0 | xargs -0 javac -d "$BUILD"
+    java -cp "$BUILD" devcheck.Main "$@"
+    ;;
+  *) echo "Error: group must be 'py' or 'java'. Run ./bin/devcheck --help." >&2; exit 1 ;;
+esac

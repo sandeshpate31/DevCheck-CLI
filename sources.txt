@@ -1,0 +1,4 @@
+java/src/devcheck/DevCheckGui.java
+java/src/devcheck/lib/MathKit.java
+java/src/devcheck/lib/TextKit.java
+java/src/devcheck/Main.java

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "devcheck-learning-libs"
+version = "0.1.0"
+description = "Educational arithmetic, text and file helper libraries for DevCheck CLI"
+requires-python = ">=3.10"
+authors = [{name = "Sandesh Pate"}]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["devcheck_cli*", "devcheck_libs*"]
